@@ -12,10 +12,14 @@ const eventSchema = new mongoose.Schema(
     description: { type: String, required: true },
     date: { type: Date, required: true },
     location: { type: String, required: true },
+    time: { type: String, required: true },
+    rsvps: [{ type: mongoose.Schema.Types.ObjectId, ref: "Users" }],
+    creatorId: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },
   },
   {
     timestamps: true,
   }
 );
+
 
 module.exports = mongoose.model("Event", eventSchema);

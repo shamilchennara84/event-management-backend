@@ -9,8 +9,23 @@ exports.getAllEvents = async (req, res) => {
   }
 };
 
+exports.getUserEvents = async (req, res) => {
+  try {
+    const userEvents = await Event.find({ creatorId: req.user._id });
+    console.log(userEvents);
+    res.json(userEvents);
+  } catch (err) {
+    // Handle errors
+    res.status(500).json({ message: err.message });
+  }
+};
+
 exports.createEvent = async (req, res) => {
-  const event = new Event(req.body);
+
+  const event = new Event({
+    ...req.body,
+    creatorId: req.user._id, 
+  });
   try {
     const savedEvent = await event.save();
     res.status(201).json(savedEvent);
@@ -21,10 +36,16 @@ exports.createEvent = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
   try {
-    const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedEvent) {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
+
+    if (String(event.creatorId) !== String(req.user._id)) {
+      return res.status(403).json({ message: "Not authorized to edit this event" });
+    }
+
+    const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updatedEvent);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -33,10 +54,16 @@ exports.updateEvent = async (req, res) => {
 
 exports.deleteEvent = async (req, res) => {
   try {
-    const deletedEvent = await Event.findByIdAndDelete(req.params.id);
-    if (!deletedEvent) {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
+
+    if (String(event.creatorId) !== String(req.user._id)) {
+      return res.status(403).json({ message: "Not authorized to delete this event" });
+    }
+
+    const deletedEvent = await Event.findByIdAndDelete(req.params.id);
     res.json(deletedEvent);
   } catch (err) {
     res.status(500).json({ message: err.message });

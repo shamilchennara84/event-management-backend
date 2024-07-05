@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    rsvps: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
+    
   },
   {
     timestamps: true,
