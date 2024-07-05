@@ -8,7 +8,7 @@ const {
   updateEvent,
   deleteEvent,
   rsvpToEvent,
-} = require("../controllers/EventController"); // Adjust the path as necessary
+} = require("../controllers/eventController"); // Adjust the path as necessary
 
 router.get("/", getAllEvents);
 router.get("/user", passport.authenticate("jwt", { session: false }), getUserEvents);
