@@ -1,4 +1,5 @@
 const Event = require("../models/eventModel"); // Adjust the path as necessary
+const User = require("../models/userModel"); // Adjust the path as necessary
 
 exports.getAllEvents = async (req, res) => {
   try {
@@ -21,10 +22,9 @@ exports.getUserEvents = async (req, res) => {
 };
 
 exports.createEvent = async (req, res) => {
-
   const event = new Event({
     ...req.body,
-    creatorId: req.user._id, 
+    creatorId: req.user._id,
   });
   try {
     const savedEvent = await event.save();
@@ -72,7 +72,8 @@ exports.deleteEvent = async (req, res) => {
 
 exports.rsvpToEvent = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id); // Assuming user authentication
+
+    const user = await User.findById(req.user._id); 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -82,11 +83,17 @@ exports.rsvpToEvent = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
+    if (event.rsvps.some(rsvpId => rsvpId.equals(user._id))) {
+      return res.status(409).json({ message: "User already RSVP'd" });
+    }
+
     event.rsvps.push(user._id);
-    await event.save();
+    const saved = await event.save();
+    console.log(saved);
 
     res.json(event);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
